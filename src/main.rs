@@ -40,12 +40,12 @@ fn parse_args(args: Vec<String>) -> EParsedArgs {
 }
 
 fn print_help() {
-    println!("Fan control utility for Clevo laptops\n");
-    println!("Usage: rusty_clevo_fan [fan_duty_percentage]");
-    println!("Arguments:\n\t[fan_duty_percentage]\tTarget fan duty - from 0 up to 100\n");
+    println!("Clefan is a fan control utility for Clevo laptops.\n");
+    println!("Usage: clefan [fan_duty_percentage]");
+    println!("Arguments:\n\t[fan_duty_percentage]\tTarget fan duty - from 0 up to 100");
     println!("\t-h\t\t\tPrint this help and exit");
     println!("To use without sudo:");
-    println!("\tsudo chown root [path/to/rusty_clevo_fan]");
-    println!("\tsudo chmod u+s [path/to/rusty_clevo_fan]");
+    println!("\tsudo chown root [path/to/clefan]");
+    println!("\tsudo chmod u+s [path/to/clefan]");
     println!("DO NOT MANIPULATE OR QUERY EC I/O PORTS WHILE THIS PROGRAM IS RUNNING.");
 }
