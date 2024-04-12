@@ -2,6 +2,7 @@ use libc::ioperm;
 use std::arch::asm;
 use std::thread::sleep;
 use std::time::Duration;
+use std::fs::read_to_string;
 
 // const TEMP: u16 = 0x9E;
 const INPUT_BYTE_FLAG: u16 = 1;
@@ -115,4 +116,15 @@ pub fn set_fan_speed(speed: u8) -> Result<(), String> {
     }
 
     Ok(())
+}
+
+pub fn get_cpu_temp() -> f32 {
+    let filepath = "/sys/class/thermal/thermal_zone0/temp";
+
+    let temp_str = read_to_string(filepath)
+        .expect(&format!("ERROR: File {} not found!", filepath));
+
+    let temp_float = temp_str.trim().parse::<f32>().unwrap();
+
+    return temp_float / 1000.0;
 }

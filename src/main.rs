@@ -4,6 +4,7 @@ mod fan_control;
 enum EParsedArgs {
     Help,
     Duty(u8),
+    Temperature,
 }
 
 fn main() {
@@ -23,6 +24,10 @@ fn main() {
                     Ok(()) => println!("INFO: Set fan speed to {}%", duty),
                 }
             }
+            EParsedArgs::Temperature => {
+                let cpu_temp = fan_control::get_cpu_temp();
+                println!("INFO: CPU temp is {}°C", cpu_temp);
+            }
         };
     } else {
         eprintln!("ERROR: Wrong arguments!\n");
@@ -40,6 +45,8 @@ fn parse_args(args: Vec<String>) -> Result<EParsedArgs, ()> {
                 .parse::<u8>()
                 .expect(&format!("ERROR: Wrong duty percentage {}", args[2])),
         ));
+    } else if args[1].contains("-t") {
+        return Ok(EParsedArgs::Temperature);
     } else {
         return Err(())
     }
@@ -51,6 +58,7 @@ fn print_help() {
     println!("Arguments:\n\t[fan_duty_percentage]\tTarget fan duty - from 0 up to 100");
     println!("\t-h\t\t\tPrint this help and exit");
     println!("\t-d\t\t\tSet fan duty percentage manually");
+    println!("\t-t\t\t\tPrint CPU temperature");
     println!("To use without sudo:");
     println!("\tsudo chown root [path/to/clefan]");
     println!("\tsudo chmod u+s [path/to/clefan]");
