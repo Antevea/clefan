@@ -2,14 +2,14 @@ use libc::ioperm;
 use std::arch::asm;
 use std::thread::sleep;
 use std::time::Duration;
-use std::fs::read_to_string;
 
-// const TEMP: u16 = 0x9E;
 const INPUT_BYTE_FLAG: u16 = 1;
-// const OUTPUT_BYTE_FLAG: u16 = 0;
+const OUTPUT_BYTE_FLAG: u16 = 0;
 const EC_DATA_PORT: u16 = 0x62;
 const EC_COMMAND_PORT: u16 = 0x66;
 const SET_RPM_COMMAND: u16 = 0x99;
+const EC_REG_CPU_TEMP: u16 = 0x07;
+const EC_SC_READ_COMMAND: u16 = 0x80;
 
 fn outb(port: u16, value: u8) {
     unsafe { asm!("outb %al, %dx", in("al") value, in("dx") port, options(att_syntax)) }
@@ -23,6 +23,7 @@ fn inb(port: u16) -> u8 {
     }
 }
 /*
+ * Can be usefull in the future, probably...
 fn outw(port: u16, value: u16) {
     unsafe { asm!("outw %ax, %dx", in("ax") value, in("dx") port, options(att_syntax)) }
 }
@@ -52,9 +53,7 @@ fn fan_control_init() -> Result<(), String> {
 }
 
 fn system_io_wait(port: u16, flag: u16, value: u8) -> Result<(), String> {
-    let mut data;
-
-    data = inb(port);
+    let mut data = inb(port);
 
     for i in 0..100 {
         if ((data >> flag) & 0x1) != value {
@@ -97,6 +96,30 @@ fn system_io_write(cmd: u16, port: u16, value: u16) -> Result<(), String> {
     Ok(())
 }
 
+fn system_io_read(port: u16) -> Result<u8, String> {
+    let cpu_temperature;
+
+    if let Err(err) = system_io_wait(EC_COMMAND_PORT, INPUT_BYTE_FLAG, 0) {
+        return Err(err);
+    } else {
+        outb(EC_COMMAND_PORT, EC_SC_READ_COMMAND as u8);
+    }
+
+    if let Err(err) = system_io_wait(EC_COMMAND_PORT, INPUT_BYTE_FLAG, 0) {
+        return Err(err);
+    } else {
+        outb(EC_DATA_PORT, port as u8);
+    }
+
+    if let Err(err) = system_io_wait(EC_COMMAND_PORT, OUTPUT_BYTE_FLAG, 1) {
+        return Err(err);
+    } else {
+        cpu_temperature = inb(EC_DATA_PORT);
+    }
+
+    return Ok(cpu_temperature);
+}
+
 pub fn set_fan_speed(speed: u8) -> Result<(), String> {
     if speed > 100 {
         return Err(format!(
@@ -118,13 +141,14 @@ pub fn set_fan_speed(speed: u8) -> Result<(), String> {
     Ok(())
 }
 
-pub fn get_cpu_temp() -> f32 {
-    let filepath = "/sys/class/thermal/thermal_zone0/temp";
+pub fn get_cpu_temp() -> Result<u8, String> {
+    if let Err(err) = fan_control_init() {
+        return Err(err);
+    }
 
-    let temp_str = read_to_string(filepath)
-        .expect(&format!("ERROR: File {} not found!", filepath));
-
-    let temp_float = temp_str.trim().parse::<f32>().unwrap();
-
-    return temp_float / 1000.0;
+    if let Ok(cpu_temp) = system_io_read(EC_REG_CPU_TEMP) {
+        return Ok(cpu_temp)
+    } else {
+        return Err("ERROR: Can't get cpu temperatures.".to_string());
+    }
 }

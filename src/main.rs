@@ -25,8 +25,11 @@ fn main() {
                 }
             }
             EParsedArgs::Temperature => {
-                let cpu_temp = fan_control::get_cpu_temp();
-                println!("INFO: CPU temp is {}°C", cpu_temp);
+                let res = fan_control::get_cpu_temp();
+                match res {
+                    Err(err) => eprintln!("{}", err),
+                    Ok(cpu_temp) => println!("INFO: CPU temp is {}°C", cpu_temp),
+                }
             }
         };
     } else {
@@ -54,10 +57,10 @@ fn parse_args(args: Vec<String>) -> Result<EParsedArgs, ()> {
 
 fn print_help() {
     println!("Clefan is a fan control utility for Clevo laptops.\n");
-    println!("Usage: clefan [fan_duty_percentage]");
-    println!("Arguments:\n\t[fan_duty_percentage]\tTarget fan duty - from 0 up to 100");
+    println!("Usage: clefan -d [fan_duty_percentage]");
+    println!("Arguments:");
     println!("\t-h\t\t\tPrint this help and exit");
-    println!("\t-d\t\t\tSet fan duty percentage manually");
+    println!("\t-d [percentage]\t\tSet fan duty percentage manually: from 0 up to 100");
     println!("\t-t\t\t\tPrint CPU temperature");
     println!("To use without sudo:");
     println!("\tsudo chown root [path/to/clefan]");
