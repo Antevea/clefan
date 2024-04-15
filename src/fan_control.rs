@@ -39,12 +39,12 @@ fn inw(port: u16) -> u16 {
 fn fan_control_init() -> Result<(), String> {
     unsafe {
         if ioperm(EC_COMMAND_PORT.into(), 1, 1) != 0 {
-            return Err("Error: sysio_init can't r/w ec registers. \
+            return Err("ERROR: sysio_init can't r/w ec registers. \
                        Try to run as root"
                 .to_string());
         }
         if ioperm(EC_DATA_PORT.into(), 1, 1) != 0 {
-            return Err("Error: sysio_init can't r/w ec registers. \
+            return Err("ERROR: sysio_init can't r/w ec registers. \
                        Try to run as root"
                 .to_string());
         }
@@ -65,7 +65,7 @@ fn system_io_wait(port: u16, flag: u16, value: u8) -> Result<(), String> {
 
         if i >= 99 {
             return Err(format!(
-                "Error: sysio_wait runtime \
+                "ERROR: sysio_wait runtime \
                                exeption on port: {}, data: {}, flag: {}, value: {}",
                 port, data, flag, value
             ));
@@ -123,7 +123,7 @@ fn system_io_read(port: u16) -> Result<u8, String> {
 pub fn set_fan_speed(speed: u8) -> Result<(), String> {
     if speed > 100 {
         return Err(format!(
-            "Wrong fan speed value: {}\n\tFan duty must be in range 0 to 100!",
+            "ERROR: Wrong fan speed value: {}\n\tFan duty must be in range 0 to 100!",
             speed
         ));
     }
