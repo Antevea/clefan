@@ -19,8 +19,12 @@ fn main() {
                         Ok(cpu_temp) => println!("INFO: CPU temp is {}°C", cpu_temp),
                     }
                 }
+                "-d" => {
+                    println!("ERROR: No value specified for argument -d\n");
+                    print_help(cmd_arg);
+                }
                 _ => {
-                    println!("ERROR: Unexpected argument {}", first);
+                    println!("ERROR: Unexpected argument {}\n", first);
                     print_help(cmd_arg);
                 }
             }
@@ -42,13 +46,13 @@ fn main() {
                     }
                 }
                 _ => {
-                    println!("ERROR: Unexpected argument {}", first);
+                    println!("ERROR: Unexpected argument {}\n", first);
                     print_help(cmd_arg);
                 }
             }
         },
         _ => {
-            println!("ERROR: Too many arguments");
+            println!("ERROR: Too many arguments\n");
             print_help(cmd_arg);
         }
     }
