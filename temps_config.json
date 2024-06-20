@@ -1,0 +1,37 @@
+{
+  "label_0": {
+    "fan": 55,
+    "begin_temp": 0,
+    "end_temp": 44
+  },
+  "label_1": {
+    "fan": 60,
+    "begin_temp": 45,
+    "end_temp": 54
+  },
+  "label_2": {
+    "fan": 65,
+    "begin_temp": 55,
+    "end_temp": 64
+  },
+  "label_3": {
+    "fan": 70,
+    "begin_temp": 65,
+    "end_temp": 74
+  },
+  "label_4": {
+    "fan": 80,
+    "begin_temp": 75,
+    "end_temp": 79
+  },
+  "label_5": {
+    "fan": 90,
+    "begin_temp": 80,
+    "end_temp": 84
+  },
+  "label_6": {
+    "fan": 100,
+    "begin_temp": 85,
+    "end_temp": 100
+  }
+}

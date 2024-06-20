@@ -1,9 +1,11 @@
 use std::env;
 mod fan_control;
+mod auto_control;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
     let cmd_arg = args[0].as_str();
+    let default_temps_config_path = "temps_config.json".to_string();
 
     match args.len() {
         1 => print_help(cmd_arg),
@@ -12,6 +14,9 @@ fn main() {
 
             match first {
                 "-h" => print_help(cmd_arg),
+                "-a" => {
+                    auto_control::auto_control(default_temps_config_path);
+                },
                 "-t" => {
                     let res = fan_control::get_cpu_temp();
                     match res {
@@ -65,6 +70,7 @@ fn print_help(cmd: &str) {
     println!("\t-h\t\t\tPrint this help and exit");
     println!("\t-d [percentage]\t\tSet fan duty percentage manually: from 0 up to 100");
     println!("\t-t\t\t\tPrint CPU temperature");
+    println!("\t-a\t\t\tControl fan speed automaticaly");
     println!("To use without sudo:");
     println!("\tsudo chown root [path/to/clefan]");
     println!("\tsudo chmod u+s [path/to/clefan]");
