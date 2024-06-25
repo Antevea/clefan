@@ -12,16 +12,22 @@ struct FanState {
     begin_temp: u8
 }
 
-fn parse_config(path: String) -> Vec<FanState> {
+fn parse_config(path: String) -> (Vec<FanState>, Option<f64>) {
     let temps_file_str = read_to_string(path.clone())
         .expect(&format!("ERROR: File {} not found!", path));
+    let mut sleep_time: f64 = f64::MIN;
 
     let mut fan_states: Vec<FanState> = Vec::new();
 
     let parsed_temps_config: JsonValue = temps_file_str.parse().unwrap();
     let hashmap_temps_config: &HashMap<String, _> = parsed_temps_config.get().unwrap();
 
-    for (_, object) in hashmap_temps_config.iter() {
+    for (label, object) in hashmap_temps_config.iter() {
+        if label == "sleep_ms" {
+            sleep_time = *object.get::<f64>().unwrap();
+            continue;
+        }
+
         let fan_state: &HashMap<_, _> = object.get().unwrap();
 
         let tmp_fan = fan_state["fan"].get::<f64>().unwrap().to_owned() as u8;
@@ -37,11 +43,20 @@ fn parse_config(path: String) -> Vec<FanState> {
         fan_states.push(tmp_state);
     }
 
-    fan_states
+    if sleep_time != f64::MIN {
+        return (fan_states, Some(sleep_time));
+    }
+
+    return (fan_states, None);
 }
 
-fn control_fan_speed(fan_states: Vec<FanState>) {
+fn control_fan_speed(fan_states: Vec<FanState>, sleep_val_opt: Option<f64>) {
     let mut state_idx: usize = 0;
+    let mut sleep_value: f64 = 3000.0;
+
+    if sleep_val_opt.is_some() {
+        sleep_value = sleep_val_opt.unwrap();
+    }
 
     loop {
         let cpu_temp = fan_control::get_cpu_temp().unwrap();
@@ -58,14 +73,14 @@ fn control_fan_speed(fan_states: Vec<FanState>) {
             }
         }
 
-        let sleep_time = time::Duration::from_millis(3000);
+        let sleep_time = time::Duration::from_millis(sleep_value as u64);
         thread::sleep(sleep_time);
     }
 }
 
 pub fn auto_control(path: String) {
-    let mut fan_states = parse_config(path);
+    let ( mut fan_states, sleep_time) = parse_config(path);
     fan_states.sort_by(|a, b| a.fan.cmp(&b.fan));
 
-    control_fan_speed(fan_states);
+    control_fan_speed(fan_states, sleep_time);
 }

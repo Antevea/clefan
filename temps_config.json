@@ -17,11 +17,11 @@
   "label_3": {
     "fan": 70,
     "begin_temp": 65,
-    "end_temp": 74
+    "end_temp": 69
   },
   "label_4": {
     "fan": 80,
-    "begin_temp": 75,
+    "begin_temp": 70,
     "end_temp": 79
   },
   "label_5": {
@@ -33,5 +33,6 @@
     "fan": 100,
     "begin_temp": 85,
     "end_temp": 100
-  }
+  },
+  "sleep_ms": 3000
 }
