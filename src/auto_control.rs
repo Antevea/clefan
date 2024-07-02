@@ -13,8 +13,9 @@ struct FanState {
 }
 
 fn parse_config(path: String) -> (Vec<FanState>, Option<f64>) {
-    let temps_file_str = read_to_string(path.clone())
-        .expect(&format!("ERROR: File {} not found!", path));
+    let temps_file_str = read_to_string(&path)
+        .expect(&format!("ERROR: could not read file {}", path));
+
     let mut sleep_time: f64 = f64::MIN;
 
     let mut fan_states: Vec<FanState> = Vec::new();
@@ -59,27 +60,31 @@ fn control_fan_speed(fan_states: Vec<FanState>, sleep_val_opt: Option<f64>) {
     }
 
     loop {
-        let cpu_temp = fan_control::get_cpu_temp().unwrap();
-        for (idx, state) in fan_states.iter().enumerate() {
-            if (cpu_temp > state.begin_temp) && (cpu_temp < state.end_temp) {
-                let target_state_idx = idx;
+        if let Ok(cpu_temp) = fan_control::get_cpu_temp() {
+            for (idx, state) in fan_states.iter().enumerate() {
+                if (cpu_temp > state.begin_temp) && (cpu_temp < state.end_temp) {
+                    let target_state_idx = idx;
 
-                if state_idx != target_state_idx {
-                    let target_fan_speed = fan_states.get(target_state_idx).unwrap().fan;
-                    fan_control::set_fan_speed(target_fan_speed).unwrap();
-                    println!("[INFO] Set fan speed to: {}", target_fan_speed);
-                    state_idx = target_state_idx;
+                    if state_idx != target_state_idx {
+                        let target_fan_speed = fan_states.get(target_state_idx).unwrap().fan;
+                        fan_control::set_fan_speed(target_fan_speed).unwrap();
+                        println!("[INFO] Set fan speed to: {}\tCPU temp: {}", target_fan_speed, cpu_temp);
+                        state_idx = target_state_idx;
+                    }
                 }
             }
-        }
 
-        let sleep_time = time::Duration::from_millis(sleep_value as u64);
-        thread::sleep(sleep_time);
+            let sleep_time = time::Duration::from_millis(sleep_value as u64);
+            thread::sleep(sleep_time);
+        } else {
+            println!("ERROR: Can't r/w ec registers. Try to run as root!");
+            break;
+        }
     }
 }
 
 pub fn auto_control(path: String) {
-    let ( mut fan_states, sleep_time) = parse_config(path);
+    let (mut fan_states, sleep_time) = parse_config(path);
     fan_states.sort_by(|a, b| a.fan.cmp(&b.fan));
 
     control_fan_speed(fan_states, sleep_time);

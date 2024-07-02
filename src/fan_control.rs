@@ -39,13 +39,13 @@ fn inw(port: u16) -> u16 {
 fn fan_control_init() -> Result<(), String> {
     unsafe {
         if ioperm(EC_COMMAND_PORT.into(), 1, 1) != 0 {
-            return Err("ERROR: sysio_init can't r/w ec registers. \
-                       Try to run as root"
+            return Err("ERROR: Can't r/w ec registers. \
+                       Try to run as root!"
                 .to_string());
         }
         if ioperm(EC_DATA_PORT.into(), 1, 1) != 0 {
-            return Err("ERROR: sysio_init can't r/w ec registers. \
-                       Try to run as root"
+            return Err("ERROR: Can't r/w ec registers. \
+                       Try to run as root!"
                 .to_string());
         }
     }

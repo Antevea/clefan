@@ -17,7 +17,7 @@ fn main() {
                 "-a" => {
                     auto_control::auto_control(default_temps_config_path);
                 },
-                "-t" => {
+                "-g" => {
                     let res = fan_control::get_cpu_temp();
                     match res {
                         Err(err) => eprintln!("{}", err),
@@ -50,6 +50,10 @@ fn main() {
                         Ok(()) => println!("INFO: Set fan speed to {}%", duty),
                     }
                 }
+                "-a" => {
+                    let second = args[2].trim().to_string();
+                    auto_control::auto_control(second);
+                }
                 _ => {
                     println!("ERROR: Unexpected argument {}\n", first);
                     print_help(cmd_arg);
@@ -69,8 +73,8 @@ fn print_help(cmd: &str) {
     println!("Arguments:");
     println!("\t-h\t\t\tPrint this help and exit");
     println!("\t-d [percentage]\t\tSet fan duty percentage manually: from 0 up to 100");
-    println!("\t-t\t\t\tPrint CPU temperature");
-    println!("\t-a\t\t\tControl fan speed automaticaly");
+    println!("\t-g\t\t\tPrint CPU temperature");
+    println!("\t-a <filepath to temp_config.json>\t\t\tControl fan speed automaticaly");
     println!("To use without sudo:");
     println!("\tsudo chown root [path/to/clefan]");
     println!("\tsudo chmod u+s [path/to/clefan]");
