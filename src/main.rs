@@ -15,13 +15,17 @@ fn main() {
             match first {
                 "-h" => print_help(cmd_arg),
                 "-a" => {
-                    auto_control::auto_control(default_temps_config_path);
+                    let res = auto_control::auto_control(default_temps_config_path);
+                    match res {
+                        Ok(()) => (),
+                        Err(()) => (),
+                    }
                 },
                 "-g" => {
                     let res = fan_control::get_cpu_temp();
                     match res {
-                        Err(err) => eprintln!("{}", err),
                         Ok(cpu_temp) => println!("INFO: CPU temp is {}°C", cpu_temp),
+                        Err(err) => eprintln!("{}", err),
                     }
                 }
                 "-d" => {
@@ -52,7 +56,11 @@ fn main() {
                 }
                 "-a" => {
                     let second = args[2].trim().to_string();
-                    auto_control::auto_control(second);
+                    let res = auto_control::auto_control(second);
+                    match res {
+                        Ok(()) => (),
+                        Err(()) => (),
+                    }
                 }
                 _ => {
                     println!("ERROR: Unexpected argument {}\n", first);
