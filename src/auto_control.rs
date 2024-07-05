@@ -68,7 +68,6 @@ fn parse_config(path: String) -> Result<(Vec<FanState>, Option<f64>), ()> {
             end_temp: tmp_end_temp,
             begin_temp: tmp_begin_temp,
         };
-        println!("{:?}", &fan_state);
 
         fan_states.push(tmp_state);
     }
